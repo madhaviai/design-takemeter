@@ -4,7 +4,7 @@
 
 I chose the **Langfuse OSS GitHub community** ([langfuse/langfuse issues](https://github.com/langfuse/langfuse/issues)) because I already use Langfuse for LLM observability and know the issue types firsthand. It's a good fit for classification: text-heavy posts, varied quality (detailed bug reports vs thin complaints vs feature asks), and 2,600+ public open/closed issues.
 
-**Recording: Walk through on the project** (https://drive.google.com/file/d/1nwyCt3czO0Rj5E8HbXANqOyEg3VuING3/view?usp=sharing)
+**Recording:** ([Walk through on the project](https://drive.google.com/file/d/1nwyCt3czO0Rj5E8HbXANqOyEg3VuING3/view?usp=sharing))
 **Data collection:** I fetched issues as JSON via the public GitHub Search API (`repo:langfuse/langfuse is:issue`), combined title + body into a `text` field, assigned labels using GitHub labels plus title/body rules, and saved the result as `data/labeled_issues.csv` (200 rows).
 
 | Label | Count |
