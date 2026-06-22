@@ -1,0 +1,12 @@
+{
+  "baseline_accuracy": 0.9,
+  "finetuned_accuracy": 0.6333,
+  "improvement": -0.2667,
+  "test_set_size": 30,
+  "label_map": {
+    "bug_report": 0,
+    "feature_request": 1,
+    "support_question": 2
+  },
+  "model": "distilbert-base-uncased"
+}
