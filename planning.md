@@ -63,7 +63,7 @@ Zero-shot Groq (`llama-3.3-70b-versatile`) on locked test set (30 examples):
 | Setting | Value |
 |---|---|
 | Epochs | 3 |
-| Learning rate | 2e-5 |
+| Learning rate | e-5 |
 | Class weights | None |
 
 | Metric | Test |
