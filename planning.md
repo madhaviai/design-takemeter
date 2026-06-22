@@ -34,11 +34,34 @@ No label exceeds 70%. If a label were underrepresented, I'd pull more pages from
 
 ---
 
+## Baseline (Milestone 4)
+
+Zero-shot Groq baseline on locked test set (30 examples, 30/30 parseable):
+
+| Metric | Score |
+|---|---|
+| Accuracy | 0.90 |
+| **Macro F1** | **0.60** |
+| Weighted F1 | 0.89 |
+
+| Label | Precision | Recall | F1 | Support |
+|---|---|---|---|---|
+| `bug_report` | 0.95 | 0.95 | 0.95 | 19 |
+| `feature_request` | 0.82 | 0.90 | 0.86 | 10 |
+| `support_question` | 0.00 | 0.00 | 0.00 | 1 |
+
+**Reflection:** 90% accuracy is misleading — macro F1 (0.60) is the honest score. Baseline handles `bug_report` and `feature_request` well (clear GitHub templates). It missed the only `support_question` in test (0/1), likely because that class is rare (10/200) and overlaps with bugs that mention confusing docs. **Hypothesis:** fine-tuning should help most on `support_question` and bug/support boundary cases; bug vs feature may not improve much over baseline.
+
+**Targets to beat:** macro F1 > 0.60, `support_question` recall > 0.00, keep `bug_report` recall ≥ 0.80.
+
+---
+
 ## Fine-tuning plan
 
 - **Input:** `text` (title + body) → **Target:** `label` via `LABEL_MAP`
-- **Split:** Notebook handles 70% / 15% / 15%
+- **Split:** Notebook handles 70% / 15% / 15% (train ~140, val ~30, test ~30)
 - **Watch:** Class imbalance — only 10 `support_question` examples; monitor per-class recall
+- **Goal:** Beat baseline macro F1 (0.60), not just accuracy (0.90)
 
 ---
 
