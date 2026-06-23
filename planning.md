@@ -4,9 +4,6 @@
 
 I chose the **Langfuse OSS GitHub community** ([langfuse/langfuse issues](https://github.com/langfuse/langfuse/issues)) because I already use Langfuse for LLM observability and know the issue types firsthand. It's a good fit for classification: text-heavy posts, varied quality (detailed bug reports vs thin complaints vs feature asks), and 2,600+ public open/closed issues.
 
-**Recording:** ([Walk through on the project](https://drive.google.com/file/d/1nwyCt3czO0Rj5E8HbXANqOyEg3VuING3/view?usp=sharing))
-
-
 **Data collection:** I fetched issues as JSON via the public GitHub Search API (`repo:langfuse/langfuse is:issue`), combined title + body into a `text` field, assigned labels using GitHub labels plus title/body rules, and saved the result as `data/labeled_issues.csv` (200 rows).
 
 | Label | Count |
@@ -21,11 +18,26 @@ No label exceeds 70%. If a label were underrepresented, I'd pull more pages from
 
 ## Labels
 
-| Label | Definition | Examples |
-|---|---|---|
-| `bug_report` | Reports broken behavior with repro steps, env, or expected vs actual. | #14427 (OTEL replay + S3 prefix); #14420 (heredoc bug in dev-tables.sh) |
-| `feature_request` | Requests new capability; describes desired behavior, not a failure. | #14265 (global model cost config); #14238 (Playground import/export) |
-| `support_question` | How-to or config question without clear bug evidence. | "How should traces be structured for MCP agents?"; docs typo / setup questions |
+### `bug_report`
+Reports broken behavior with repro steps, environment details, or expected vs actual.
+
+**Example 1:** [#14427](https://github.com/langfuse/langfuse/issues/14427) — OTEL replay fails when `LANGFUSE_S3_EVENT_UPLOAD_PREFIX` is set; includes env, steps, expected behavior.
+
+**Example 2:** [#14420](https://github.com/langfuse/langfuse/issues/14420) — Unquoted heredoc in `dev-tables.sh` causes command substitution; points to file and failure mode.
+
+### `feature_request`
+Requests new capability; describes desired behavior, not a failure.
+
+**Example 1:** [#14265](https://github.com/langfuse/langfuse/issues/14265) — Instance-wide model cost configuration with discount factor.
+
+**Example 2:** [#14238](https://github.com/langfuse/langfuse/issues/14238) — Import/export portable Playground draft snapshots.
+
+### `support_question`
+How-to or config question without clear bug evidence.
+
+**Example 1:** "How should Langfuse traces be structured for an agent using MCP tools, OpenRouter, RAG?" — setup question, no repro.
+
+**Example 2:** "Update instructions for Monitoring Workshop section" — docs clarification, no broken behavior.
 
 ---
 
@@ -34,6 +46,14 @@ No label exceeds 70%. If a label were underrepresented, I'd pull more pages from
 **Ambiguous:** Self-hosting posts saying "X doesn't work" — misconfiguration or real bug?
 
 **Rule:** Repro + env + expected/actual → `bug_report`. "How do I configure…" / "Is this expected?" → `support_question`.
+
+### Difficult annotation cases (3)
+
+| Case | Text signal | Considered | Chose | Why |
+|---|---|---|---|---|
+| 1 | "documentation was confusing. Is this intended behavior?" inside `### Describe the bug` | support vs bug | `bug_report` | Has repro steps, SDK version, self-hosted env — question is secondary |
+| 2 | Title `Feat: Allow multi-modal in Playground` + long PRD | feature vs bug | `feature_request` | Describes desired capability, no broken behavior |
+| 3 | "LLM Connection fails for Azure OpenAI via corporate gateway" — thin body, no repro | bug vs support | `bug_report` | Failure language + `bug` GitHub label; lacks how-to framing |
 
 ---
 
@@ -66,7 +86,7 @@ Zero-shot Groq (`llama-3.3-70b-versatile`) on locked test set (30 examples):
 | Setting | Value |
 |---|---|
 | Epochs | 3 |
-| Learning rate | e-5 |
+| Learning rate | 2e-5 |
 | Class weights | None |
 
 | Metric | Test |
@@ -204,8 +224,12 @@ Zero-shot Groq (`llama-3.3-70b-versatile`) on locked test set (30 examples):
 
 ## AI tool plan
 
-| Phase | Plan |
+| Phase | What I did |
 |---|---|
-| **Label stress-testing** | Used Cursor to generate boundary cases before annotation; tightened rules where labels overlapped. |
-| **Annotation assistance** | GitHub labels used as pre-label signal via script; every row reviewed; rule recorded in `notes` column. |
-| **Failure analysis** | After training, export misclassified rows to Cursor for pattern clustering; verify each pattern manually on 5–10 examples. |
+| **Label stress-testing** | Cursor generated boundary posts; tightened bug vs support rule |
+| **Annotation assistance** | GitHub API script pre-labeled; Claude re-labeled 30 rows (~90% agreement, no CSV changes) |
+| **Failure analysis** | Exported misclassified rows to Cursor; found bug↔feature template confusion → added WeightedTrainer |
+
+See **README.md** for 3 specific AI usage instances and spec reflection.
+
+---
